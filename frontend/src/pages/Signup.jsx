@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const API_URL = "https://nexaflow-login-page-1.onrender.com";
+
 function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,7 +32,9 @@ function Signup() {
     }
 
     // Validate email
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email.trim())) {
       setError("Please enter a valid email address.");
       return;
     }
@@ -63,11 +67,17 @@ function Signup() {
       setLoading(true);
 
       const response = await axios.post(
-        "https://nexaflow-login-page-1.onrender.com/api/signup",
+        `${API_URL}/api/signup`,
         {
           name: name.trim(),
           email: email.trim(),
           password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 30000,
         }
       );
 
@@ -87,13 +97,19 @@ function Signup() {
       console.error("Signup error:", error);
 
       if (error.response) {
+        // Server responded with an HTTP error
         setError(
           error.response.data?.message ||
-            "Unable to create your account. Please try again."
+            `Signup failed. Server returned status ${error.response.status}.`
+        );
+      } else if (error.code === "ECONNABORTED") {
+        setError(
+          "The server took too long to respond. Please try again."
         );
       } else if (error.request) {
+        // No response: possible CORS, network, or server issue
         setError(
-          "Cannot connect to the server. Please check your internet connection or try again later."
+          "Could not receive a response from the server. Please check your connection and try again."
         );
       } else {
         setError(error.message || "Something went wrong.");
@@ -106,7 +122,6 @@ function Signup() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl md:grid-cols-2">
-
         {/* Left panel */}
         <div className="hidden flex-col justify-between bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-800 p-10 text-white md:flex">
           <div>
@@ -214,7 +229,9 @@ function Signup() {
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword((previous) => !previous)}
+                  onClick={() =>
+                    setShowPassword((previous) => !previous)
+                  }
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-blue-600 hover:text-blue-700"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
