@@ -9,7 +9,6 @@ function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -48,7 +47,7 @@ function Signup() {
       return;
     }
 
-    // Validate digits
+    // Validate at least 3 digits
     if ((password.match(/\d/g) || []).length < 3) {
       setError("Password must contain at least 3 digits.");
       return;
@@ -64,7 +63,7 @@ function Signup() {
       setLoading(true);
 
       const response = await axios.post(
-        "http://localhost:5000/api/signup",
+        "https://nexaflow-login-page-1.onrender.com/api/signup",
         {
           name: name.trim(),
           email: email.trim(),
@@ -80,7 +79,9 @@ function Signup() {
           },
         });
       } else {
-        setError(response.data.message || "Unable to create your account.");
+        setError(
+          response.data.message || "Unable to create your account."
+        );
       }
     } catch (error) {
       console.error("Signup error:", error);
@@ -92,7 +93,7 @@ function Signup() {
         );
       } else if (error.request) {
         setError(
-          "Cannot connect to the server. Please check whether the backend is running."
+          "Cannot connect to the server. Please check your internet connection or try again later."
         );
       } else {
         setError(error.message || "Something went wrong.");
@@ -124,7 +125,8 @@ function Signup() {
             </h2>
 
             <p className="mt-6 leading-7 text-blue-100">
-              Join NexaFlow and experience a simple, modern way to get started.
+              Join NexaFlow and experience a simple, modern way to get
+              started.
             </p>
           </div>
 
@@ -150,7 +152,6 @@ function Signup() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             {/* Name */}
             <div>
               <label
@@ -213,9 +214,7 @@ function Signup() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword((previous) => !previous)
-                  }
+                  onClick={() => setShowPassword((previous) => !previous)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-blue-600 hover:text-blue-700"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
