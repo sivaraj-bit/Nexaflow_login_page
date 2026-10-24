@@ -23,7 +23,7 @@ function Login() {
       return;
     }
 
-    // Validate email
+    // Validate email format
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setError("Please enter a valid email address.");
       return;
@@ -32,9 +32,9 @@ function Login() {
     setLoading(true);
 
     try {
-      // Send login request to the backend
+      // Send login request to the deployed backend
       const response = await axios.post(
-        "http://localhost:5000/api/login",
+        "https://nexaflow-login-page-1.onrender.com/api/login",
         {
           email: normalizedEmail,
           password,
@@ -42,7 +42,7 @@ function Login() {
       );
 
       if (response.data.success) {
-        // Store basic user information for the dashboard
+        // Store user information for the dashboard
         localStorage.setItem(
           "nexaflowUser",
           JSON.stringify(response.data.user)
@@ -58,10 +58,12 @@ function Login() {
         setError(
           error.response.data.message || "Unable to log in."
         );
-      } else {
+      } else if (error.request) {
         setError(
-          "Unable to connect to the server. Please check your backend."
+          "Unable to connect to the server. Please try again."
         );
+      } else {
+        setError("Something went wrong. Please try again.");
       }
 
       console.error("Login error:", error);
@@ -82,9 +84,7 @@ function Login() {
                 N
               </div>
 
-              <h1 className="text-2xl font-bold">
-                NexaFlow
-              </h1>
+              <h1 className="text-2xl font-bold">NexaFlow</h1>
             </div>
 
             <h2 className="text-4xl font-bold leading-tight">
