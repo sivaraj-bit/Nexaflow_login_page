@@ -6,22 +6,27 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Allowed frontend origins
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://nexaflowloginpage.vercel.app",
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+// Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests without an Origin header, such as health checks.
+      // Allow requests without an Origin header (e.g. health checks)
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
+      console.error("Blocked CORS origin:", origin);
       return callback(new Error("Not allowed by CORS"));
     },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
