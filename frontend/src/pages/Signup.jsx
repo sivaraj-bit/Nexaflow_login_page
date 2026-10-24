@@ -97,7 +97,6 @@ function Signup() {
       console.error("Signup error:", error);
 
       if (error.response) {
-        // Server responded with an HTTP error
         setError(
           error.response.data?.message ||
             `Signup failed. Server returned status ${error.response.status}.`
@@ -107,7 +106,6 @@ function Signup() {
           "The server took too long to respond. Please try again."
         );
       } else if (error.request) {
-        // No response: possible CORS, network, or server issue
         setError(
           "Could not receive a response from the server. Please check your connection and try again."
         );
@@ -233,7 +231,9 @@ function Signup() {
                     setShowPassword((previous) => !previous)
                   }
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-blue-600 hover:text-blue-700"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={
+                    showPassword ? "Hide password" : "Show password"
+                  }
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>

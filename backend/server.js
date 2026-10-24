@@ -10,26 +10,25 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   "http://localhost:5173",
   "https://nexaflowloginpage.vercel.app",
+  "https://nexaflowloginpage-a14e.vercel.app",
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-// Middleware
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests without an Origin header (e.g. health checks)
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+// CORS configuration
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      console.error("Blocked CORS origin:", origin);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+    console.error("Blocked CORS origin:", origin);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Temporary user storage
@@ -53,8 +52,6 @@ app.post("/api/signup", async (req, res) => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-
-    // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(normalizedEmail)) {
@@ -64,7 +61,6 @@ app.post("/api/signup", async (req, res) => {
       });
     }
 
-    // Validate password
     if (
       password.length < 8 ||
       !/[A-Z]/.test(password) ||
@@ -77,7 +73,6 @@ app.post("/api/signup", async (req, res) => {
       });
     }
 
-    // Check for duplicate email
     const existingUser = users.find(
       (user) => user.email === normalizedEmail
     );
@@ -89,7 +84,6 @@ app.post("/api/signup", async (req, res) => {
       });
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
     const newUser = {

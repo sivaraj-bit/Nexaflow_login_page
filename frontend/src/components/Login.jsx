@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
+const API_URL = "https://nexaflow-login-page-1.onrender.com";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +26,9 @@ function Login() {
     }
 
     // Validate email format
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(normalizedEmail)) {
       setError("Please enter a valid email address.");
       return;
     }
@@ -32,12 +36,17 @@ function Login() {
     setLoading(true);
 
     try {
-      // Send login request to the deployed backend
       const response = await axios.post(
-        "https://nexaflow-login-page-1.onrender.com/api/login",
+        `${API_URL}/api/login`,
         {
           email: normalizedEmail,
           password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 30000,
         }
       );
 
@@ -54,10 +63,14 @@ function Login() {
         setError(response.data.message || "Login failed.");
       }
     } catch (error) {
+      console.error("Login error:", error);
+
       if (error.response) {
         setError(
-          error.response.data.message || "Unable to log in."
+          error.response.data?.message || "Unable to log in."
         );
+      } else if (error.code === "ECONNABORTED") {
+        setError("The server took too long to respond. Please try again.");
       } else if (error.request) {
         setError(
           "Unable to connect to the server. Please try again."
@@ -65,8 +78,6 @@ function Login() {
       } else {
         setError("Something went wrong. Please try again.");
       }
-
-      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }
@@ -75,7 +86,6 @@ function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl md:grid-cols-2">
-
         {/* Left panel */}
         <div className="hidden flex-col justify-between bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-800 p-12 text-white md:flex">
           <div>
